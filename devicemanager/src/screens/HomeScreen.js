@@ -10,11 +10,14 @@ import { fetchDevicesData } from '../store/actions';
 // const {colors} = useTheme()
 
 function HomeScreen(props) {
+  // console.log("props",props);
   const {colors} = useTheme();
   const [deviceList,setDeviceList]=useState([])
   const dispatch = useDispatch();
   // fetchDevicesData
-  const oldDevices = useSelector((state)=>state.dashboard);
+  const devicesList = useSelector((state)=>state.dashboard && state.dashboard.devicesList||false);
+  const oldDevices = useSelector((state)=>state.dashboard||[]);
+  console.log("error in devicesList ",devicesList);
 
   React.useEffect(() => {
      if(oldDevices && oldDevices.devices)
@@ -25,7 +28,7 @@ function HomeScreen(props) {
   React.useEffect(() => {
      
     deviceSavedData();
- }, []);
+ }, [devicesList]);
 
   const deviceSavedData = async () => {
     try {

@@ -27,7 +27,7 @@ export default (state = initialState, action) => {
     switch (action.type) {
         case FETCH_DATA:
             console.log("the data is ",action.devices);
-            return { ...initialState, devices: action.devices?action.devices:[],isDashboard:true }
+            return { ...state, devices: action.devices,isDashboard:true }
         case ADD_DEVICE:
             console.log("the action is 5",action);
             return { ...state, devices: action.devices }

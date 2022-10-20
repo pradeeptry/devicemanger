@@ -47,7 +47,7 @@ export const addDevice = (device,oldDevices=[]) => {
             type: ADD_DEVICE,
             devices: temp
         });
-        dispatch({
+        return dispatch({
             type: DEVICES_AVAILABLE,
             devicesList: true
         });

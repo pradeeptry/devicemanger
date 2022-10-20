@@ -36,7 +36,7 @@ const _isInputNameOnlyValid = (name) => name.length && name.trim().length && /^\
 
 
 function AddEditDevice(props) {
-    const oldDevices = useSelector((state)=>state.dashboard);
+    const oldDevices = useSelector((state)=>state.dashboard && state.dashboard.devices?state.dashboard.devices:[]);
     console.log("old devices",oldDevices)
     const { colors } = useTheme();
     const dispatch = useDispatch();

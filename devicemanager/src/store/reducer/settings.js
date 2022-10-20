@@ -10,12 +10,13 @@ const initialState = {
     exportFailed:false,
     exportInProcess:false,
     exportCompleted:false,
+    isDarkModeOn:false
   }
   
   export default (state = initialState, action) => {
   switch (action.type) {
     case TOGGLE_THEME:
-      return { ...state, isDarkModeOn: action.isDarkModeOn }
+      return { ...state, isDarkModeOn: action.isDarkModeOn,theme:action.isDarkModeOn?'dark':'light'}
       case EXPORT_DEVICES_START:
       return { ...state, exportInProcess:action.exportInProcess }
       case EXPORT_DEVICES_DONE:

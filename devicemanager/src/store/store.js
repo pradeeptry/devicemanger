@@ -1,9 +1,9 @@
-import { createStore, combineReducers,applyMiddleware } from 'redux';
+import { legacy_createStore as createStore, combineReducers,applyMiddleware } from 'redux';
 import dashbordReducer from './reducer/devices';
 import settingsReducer from './reducer/settings';
 import ReduxThunk from 'redux-thunk';
 const appReducer = combineReducers({
-  dashbord:dashbordReducer,
+  dashboard:dashbordReducer,
   settings:settingsReducer,
 });
 const rootReducer = (state, action) => {

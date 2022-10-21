@@ -6,10 +6,10 @@ const appReducer = combineReducers({
   dashboard:dashbordReducer,
   settings:settingsReducer,
 });
-const rootReducer = (state, action) => {
-  // when a logout action is dispatched it will reset redux state
-  return appReducer(state, action);
-};
-const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
+// const rootReducer = (state, action) => {
+//   // when a logout action is dispatched it will reset redux state
+//   return appReducer(state, action);
+// };
+const store = createStore(appReducer, applyMiddleware(ReduxThunk));
 
 export default store;

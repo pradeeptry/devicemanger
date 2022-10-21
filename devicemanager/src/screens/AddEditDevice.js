@@ -4,6 +4,7 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
+import cuid from 'cuid';
 
 import { useTheme, Text, HelperText } from 'react-native-paper';
 // import { Colors } from 'react-native/Libraries/NewAppScreen';
@@ -36,21 +37,24 @@ const _isInputNameOnlyValid = (name) => name.length && name.trim().length && /^\
 
 
 function AddEditDevice(props) {
-    const oldDevices = useSelector((state)=>state.dashboard && state.dashboard.devices?state.dashboard.devices:[]);
-    console.log("old devices",oldDevices)
+    // const addDeviceStaus = useSelector((state)=>state.dashboard && state.dashboard.addDeviceStaus);
+
+    const oldDevices = useSelector((state) => state.dashboard.devices);
+    // console.log("old devices", props.route.params.singleDevice.name)
     const { colors } = useTheme();
     const dispatch = useDispatch();
     const [deviceData, setDeviceData] = useState(
         {
-            name: props?.singleDevice?.name || '',
-            os: props?.singleDevice?.os || '',
-            modal: props?.singleDevice?.modal || '',
-            deviceOwner: props?.singleDevice?.os || '',
-            qrImage: props?.singleDevice?.qrImage || ''
+            name: props?.route?.params && props.route.params.singleDevice? props.route.params.singleDevice.name : '',
+            os: props?.route?.params && props.route.params.singleDevice ?props.route.params.singleDevice.os : '',
+            modal: props?.route?.params && props.route.params.singleDevice ?props.route.params.singleDevice.modal : '',
+            deviceOwner: props?.route?.params && props.route.params.singleDevice? props.route.params.singleDevice.deviceOwner : '',
+            qrImage: props?.route?.params && props.route.params.singleDevice ? props.route.params.singleDevice.qrImage : '',
+            id: props?.route?.params && props.route.params.singleDevice ?props.route.params.singleDevice.id : '',
         }
     )
     // using same screen for add edit 
-    const [isEdit, setIsEdit] = useState(props.route.parmas && props.route.parmas.isEdit ? true : false);
+    const [isEdit, setIsEdit] = useState(props?.route?.params?.singleDevice ? true : false);
     // checking for direct submission without change
     const [isClicked, setIsClicked] = useState(false);
     // for showing errors
@@ -70,21 +74,40 @@ function AddEditDevice(props) {
             modal: false
         });
 
-    validateInputs = () => {
+    validateInputs = async () => {
         setIsClicked(true);
-        const { name, os, deviceOwner, modal, qrImage } = deviceData;
+        const { name, os, deviceOwner, modal, qrImage, id } = deviceData;
         if (name && os && deviceOwner && modal) {
             if (isEdit) {
                 // dispatch(editDevice)
+                let oldData = [...oldDevices];
+                let updatedDeviceIndex = oldData.indexOf(id);
+                const device = { id: id, name, os, deviceOwner, modal, qrImage: 'sdfsds' };
+
+                let removedData = oldData.splice(updatedDeviceIndex, 1, device);
+                console.log("the old updated data is ", oldData);
+                dispatch(updateDeviceData(oldData));
+                props.navigation.goBack();
+
             } else {
-                const device = {name,os,deviceOwner,modal,qrImage:'sdfsds'};
-                dispatch(addDevice(device,oldDevices));
+                const device = { id: cuid(), name, os, deviceOwner, modal, qrImage: 'sdfsds' };
+                let oldData = [...oldDevices]; // main device data of redux
+                oldData.push(device)
+                dispatch(addDevice(oldData));
+                props.navigation.goBack();
+
             }
         } else {
             // setError('Please enter details');
         }
     }
 
+    // useEffect(() => {
+    //     if (isClicked && addDeviceStaus=='IN_PROCESS') {
+    //         setIsClicked(false);
+    //         props.navigation.goBack();
+    //     }
+    // }, [addDeviceStaus=='IN_PROCESS']);
 
     useEffect(() => {
         if (isEdit) {
@@ -93,7 +116,7 @@ function AddEditDevice(props) {
     }, []);
 
     fillAllStateValues = () => {
-        setDeviceData(deviceData=>({
+        setDeviceData(deviceData => ({
             ...deviceData,
             ...props.route.params.singleDevice
         }))
@@ -137,9 +160,9 @@ function AddEditDevice(props) {
                         />
                         {(focus.name || isClicked) && !_isInputValid(name) ?
                             <HelperText type="error" visible={true}>
-                                {!name.length?
-                                'Error: Please enter device name!':
-                                'Error: Only letters and numbers allowed!'
+                                {!name.length ?
+                                    'Error: Please enter device name!' :
+                                    'Error: Only letters and numbers allowed!'
                                 }
                             </HelperText>
                             : null}
@@ -159,9 +182,9 @@ function AddEditDevice(props) {
                         />
                         {(focus.os || isClicked) && !_isInputValid(os) ?
                             <HelperText type="error" visible={true}>
-                                 {!os.length?
-                                'Error: Please enter OS of device!':
-                                'Error: Only letters and numbers allowed!'
+                                {!os.length ?
+                                    'Error: Please enter OS of device!' :
+                                    'Error: Only letters and numbers allowed!'
                                 }
                             </HelperText>
                             : null}
@@ -181,9 +204,9 @@ function AddEditDevice(props) {
                         />
                         {(focus.deviceOwner || isClicked) && !_isInputNameOnlyValid(deviceOwner) ?
                             <HelperText type="error" visible={true}>
-                                 {!deviceOwner.length?
-                                'Error: Please enter device owner name!':
-                                'Error: Only valid names allowed!'
+                                {!deviceOwner.length ?
+                                    'Error: Please enter device owner name!' :
+                                    'Error: Only valid names allowed!'
                                 }
                             </HelperText>
                             : null}
@@ -203,9 +226,9 @@ function AddEditDevice(props) {
                         />
                         {(focus.modal || isClicked) && !_isInputValid(modal) ?
                             <HelperText type="error" visible={true}>
-                                  {!modal.length?
-                                'Error: Please enter modal name!':
-                                'Error: Only letters and numbers allowed!'
+                                {!modal.length ?
+                                    'Error: Please enter modal name!' :
+                                    'Error: Only letters and numbers allowed!'
                                 }
                             </HelperText>
                             : null}

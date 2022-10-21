@@ -2,15 +2,14 @@ import { StyleSheet } from 'react-native'
 import React from 'react'
 import { View, TouchableOpacity } from 'react-native'
 import { Surface, Avatar, Title, Caption, withTheme,useTheme } from 'react-native-paper'
-import { shape, string, bool, func } from 'prop-types'
-import { propTypes } from '../../constants'
-import styles from './ListElement.styles'
-
-const ListElement = ({ item, onPressListElement, onPressAddToFavorites, isFavorited, theme }) => {
-  const { image, symbol } = item
-  const currentPrice = item.current_price
-  const priceChange = item.price_change_24h
-  const { colors } = useTheme();
+import EditIcon from 'react-native-vector-icons/Feather';
+const ListElement = ({ item, onPressListElement,
+  onEdit,
+  onPressDelete, colors }) => {
+  const {id, name,os,modal,deviceOwner,qrImage } = item
+  // const currentPrice = modal;
+  const priceChange = os;
+  // const { colors } = useTheme();
 
   return ((
     <TouchableOpacity
@@ -18,40 +17,62 @@ const ListElement = ({ item, onPressListElement, onPressAddToFavorites, isFavori
       style={styles.surfaceContainer}
     >
       <Surface style={styles.surface}>
-        <Avatar.Image style={styles.avatar} size={28} source={{ uri: image && image }} />
+        <Avatar.Image style={styles.avatar} size={28} source={{ uri: qrImage && undefined }} />
         <View style={styles.infoContainer}>
+          <View style={{flex:0.7,flexDirection:'column'}}>
           <View style={styles.sectionContainer}>
             <Title
               numberOfLines={1}
               style={styles.coinName}
             >
-              {symbol}
+              {name}
             </Title>
-            <Title style={{ color: colors.accent }}>
-              {' $'}
-              {currentPrice}
-            </Title>
+            
           </View>
-          <View style={styles.sectionContainer}>
-            <Caption>Last 24h: </Caption>
-            <Caption
-              style={{ color: priceChange < 0 ? colors.error : colors.accent }}
+          <View style={styles.sectionContainer2}>
+          <Caption>Modal: </Caption>
+          <Caption
+           style={{fontWeight:'800', }}
             >
-              {priceChange}
+              {modal}
+            </Caption>
+            </View>
+          <View style={styles.sectionContainer2}>
+            <Caption>Owner: </Caption>
+            <Caption
+             style={{fontWeight:'800', }}
+            >
+              {deviceOwner}
             </Caption>
           </View>
-        </View>
-        <TouchableOpacity hitSlop={{ x: 10, y: 10 }} onPress={onPressAddToFavorites}>
-          <Avatar.Icon
+          </View>
+          <View style={{flex:0.4,flexDirection:'column',justifyContent:'space-around'}}>
+            <View style={{flexDirection: 'row',alignItems:'flex-start'}}>
+            <Caption
+              style={{fontWeight:'800',fontSize:8 }}>OS: </Caption>
+          <Caption
+              style={{fontWeight:'800',fontSize:8 }}
+            >
+              {os}
+            </Caption>
+            </View>
+            <View style={{flexDirection: 'row',justifyContent:'center'}}>
+          <TouchableOpacity  onPress={()=>{onEdit(item)}}>
+          <EditIcon
             size={28}
-            icon="star"
-            style={[
-              styles.avatar,
-              { backgroundColor: isFavorited ? colors.accent : colors.disabled },
-            ]}
+            name="edit"
+            color={colors.primary}
+            style={
+             {opacity:1.2 }}
+            
           />
         </TouchableOpacity>
+        </View>
+            </View>
+        </View>
+        
       </Surface>
+   
     </TouchableOpacity>
   ))
 }
@@ -60,7 +81,7 @@ const ListElement = ({ item, onPressListElement, onPressAddToFavorites, isFavori
 export default withTheme(ListElement)
 const styles = StyleSheet.create({
     infoContainer: {
-      flexGrow: 1,
+      flexDirection:'row',
     },
     surfaceContainer: {
       width: '100%',
@@ -72,6 +93,12 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
     },
     sectionContainer: {
+      flex:1,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    sectionContainer2: {
       flexDirection: 'row',
       justifyContent: 'flex-start',
       alignItems: 'center',

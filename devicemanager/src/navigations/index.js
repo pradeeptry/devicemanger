@@ -73,7 +73,7 @@ const HomeStack = (props) => {
         })}
       />
    <Stack.Screen
-        name="Edit Device"
+        name="Update"
         component={AddEditDevice}
         options={props => ({
           headerStyle:{backgroundColor:colors.primary},
@@ -137,12 +137,7 @@ export default function PaperExample(props) {
     const [isDarkMode, setIsDarkMode] = React.useState(false);
     const [themeVersion, setThemeVersion] = React.useState(3);
     const themeMode = isDarkMode ? 'dark' : 'light';
-    const theme = {
-        3: {
-            light: MD3LightTheme,
-            dark: MD3DarkTheme,
-        },
-    }[themeVersion][themeMode];
+    const theme = {3: { light: MD3LightTheme, dark: MD3DarkTheme,}}[themeVersion][themeMode];
 
 
 

@@ -4,8 +4,10 @@ export {
     updateDeviceList,
     addDevice,
     updateDeviceData,
-    removeDevice,
-    deviceRemoved
+    removeDeviceFromList,
+    deviceRemoved,
+    completeDeviceAdd,
+    updateDeviceDataStatus,
 } from './devices';
 
 

@@ -16,19 +16,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const BASE_URL = '';
 
 export const fetchDevicesData = (devices = false, devicesList = false) => {
-    return async dispatch => {
+    return (dispatch) => {
         console.log("the differ ")
-         dispatch({
-            type: FETCH_DATA,
-            devices: devices?devices:[],
+        return dispatch({
+            type: 'FETCH_DATA',
+            devices: devices ? devices : [],
+            devicesList: devices && devices.length ? true : false
         });
-         updateDeviceList(devicesList);
+
     };
 };
 
 export const updateDeviceList = (devicesList = false) => {
     return (dispatch) => {
-console.log("the dataa is in the available ")
+        console.log("the dataa is in the available ")
         return dispatch({
             type: DEVICES_AVAILABLE,
             devicesList: devicesList
@@ -37,106 +38,116 @@ console.log("the dataa is in the available ")
 };
 
 
-export const addDevice = (device,oldDevices=[]) => {
+export const addDevice = (device) => {
     return async (dispatch) => {
-        try{
-        let temp =oldDevices && oldDevices.length? oldDevices.push(device):[device];
-        const newDeviceData = { devices: temp, deviceList: true };
-        await AsyncStorage.setItem('@DEVICES_DATA', JSON.stringify(newDeviceData));
-        dispatch({
-            type: ADD_DEVICE,
-            devices: temp
+        await dispatch({
+            type: 'ADD_DEVICE_STATUS',
+            addDeviceStatus: 'IN_PROCESS'
         });
-        return dispatch({
-            type: DEVICES_AVAILABLE,
+        const newDeviceData = { devices: device, deviceList: true };
+        await AsyncStorage.setItem('@DEVICES_DATA', JSON.stringify(newDeviceData));
+        await dispatch({
+            type: ADD_DEVICE,
+            devices: device,
             devicesList: true
         });
-    }catch(err){
-        console.log(err);
-    }
-    };
-};
-
-
-export const updateDeviceData = (deviceData, deviceID,oldDevices) => {
-    return async (dispatch) => {
-        let oldDeviceData = oldDevices;
-        let updatedDeviceIndex = oldDeviceData.indexOf(deviceID);
-        let removedData = oldDeviceData.splice(updatedDeviceIndex, 1, deviceData);
-
-        const newDeviceData = { devices: oldDeviceData, deviceList: oldDeviceData && oldDeviceData.length > 0 ? true : false };
-
-        await AsyncStorage.setItem('@DEVICES_DATA', JSON.stringify(newDeviceData));
 
         await dispatch({
-            type: UPDATE_DEVICE,
-            devices: oldDeviceData
+            type: 'ADD_DEVICE_STATUS',
+            addDeviceStatus: 'DONE'
         });
-        updateDeviceDataStatus(true);
 
     };
 };
-const updateDeviceDataStatus = (status = false) => {
-    return dispatch => {
+
+export const completeDeviceAdd = () => {
+    return (dispatch) => {
         dispatch({
-            type: UPDATE_DEVICE_DONE,
-            updateDevice: status
+            type: 'ADD_DEVICE_STATUS',
+            addDeviceStatus: false
         });
     }
 }
 
 
+export const updateDeviceData = (deviceData) => {
+    return async (dispatch) => {
+        await dispatch({
+            type: 'UPDATE_DEVICE_STATUS',
+            updateDeviceStatus: 'IN_PROCESS'
+        });
+        const newDeviceData = { devices: deviceData, devicesList: true };
+        await AsyncStorage.setItem('@DEVICES_DATA', JSON.stringify(newDeviceData));
+        await dispatch({
+            type: UPDATE_DEVICE,
+            devices: deviceData
+        });
+        await dispatch({
+            type: 'UPDATE_DEVICE_STATUS',
+            updateDeviceStatus: 'DONE'
+        });
+        // updateDeviceDataStatus(true);
+
+    };
+};
+export const updateDeviceDataStatus = () => {
+    return dispatch => {
+        dispatch({
+            type: UPDATE_DEVICE_DONE,
+            updateDeviceStatus: false
+        });
+    }
+}
 
 
-export const removeDevice = (deviceId,oldDevices) => {
+export const removeDeviceFromList = (devices,devicesList) => {
     return async (dispatch) => {
         // let temp = [...state.devices;
-        const devices = [...oldDevices.filter((element) => element.id !== deviceId)];
-        let deviceList = devices && devices.length > 0 ? true : false;
-        const newDeviceData = { devices: devices, deviceList: deviceList };
+        await dispatch({
+            type: REMOVE_DEVICE_DONE,
+            removeDevice: true,
+            popUpMsg: false
+            });
+        const newDeviceData = { devices: devices, deviceList: devicesList };
 
         await AsyncStorage.setItem('@DEVICES_DATA', JSON.stringify(newDeviceData));
 
-        dispatch({
+        await dispatch({
             type: REMOVE_DEVICE,
-            devices: devices
+            devices: devices,
+            devicesList:devicesList
         });
-        deviceRemoved(devices, deviceList);
-    };
-};
-
-export const deviceRemoved = (updatedDevices = false, isEmpty = false) => {
-    if (updatedDevices == false) {
-        return dispatch({
-            type: REMOVE_DEVICE_DONE,
-            removeDevice: false,
-            popUpMsg: false
-        });
-    } else {
-        return async dispatch => {
-            let popUpMsg = `Device deleted successfully!`;
-            await fetch(`https://zenquotes.io/api/today`).then(res => {
-                if (res.data) {
-                    if (isEmpty) {
-                        dispatch({
-                            type: DEVICES_AVAILABLE,
-                            devicesList: devicesList
-                        });
-                    }
-                    return dispatch({
-                        type: REMOVE_DEVICE_DONE,
-                        removeDevice: true,
-                        popUpMsg: popUpMsg
+        // deviceRemoved(true,devices, devicesList);
+        let isEmpty = devices && devices.length==0 ? true : false;
+        let popUpMsg = `Device deleted successfully!`;
+       return await  fetch(`https://zenquotes.io/api/today`,{}).then( res => res.json()).then( res2=>{
+        console.log("res2",res2);
+            if (res2) {
+                console.log("the response is -------",res2);
+                // const {h,q} = res2[0].h;
+                if (isEmpty) {
+                     dispatch({
+                        type: DEVICES_AVAILABLE,
+                        devicesList: devicesList
                     });
-                } else {
-                    // default msg shown
-                    popUpMsg = `Device deleted successfully!`;
                 }
-            }).catch(error => {
-                // use case we can show please check internet connection or can show custum msg
+                return dispatch({
+                    type: REMOVE_DEVICE_DONE,
+                    removeDevice: true,
+                    popUpMsg: {'a':res2[0]['a'],'q':res2[0].q}
+                });
+            } else {
                 // default msg shown
+                console.log("the response is ---else part ----",res2);
+
                 popUpMsg = `Device deleted successfully!`;
-            });
+            }
+        }).catch(error => {
+            console.log("the response is ---else part --errror --",error);
+
+            // use case we can show please check internet connection or can show custum msg
+            // default msg shown
+            popUpMsg = `Device deleted successfully!`;
             if (isEmpty) {
                 dispatch({
                     type: DEVICES_AVAILABLE,
@@ -148,7 +159,20 @@ export const deviceRemoved = (updatedDevices = false, isEmpty = false) => {
                 removeDevice: true,
                 popUpMsg: popUpMsg
             });
-        }
-    }
-
+        });
+        
+    };
 };
+
+export const deviceRemoved = () => {
+    return (dispatch)=>{
+        return dispatch({
+            type: REMOVE_DEVICE_DONE,
+            removeDevice: false,
+            popUpMsg: false
+        });
+    
+    }
+};
+
+

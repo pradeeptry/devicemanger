@@ -20,40 +20,46 @@ const initialState = {
     addDevice:false,
     removeDevice:false,
     popUpMsg:false,
-    isDashboard:false
+    isDashboard:false,
+    addDeviceStatus:false,
+    updateDeviceStatus:false
 }
 
 export default (state = initialState, action) => {
+    console.log(action.type);
     switch (action.type) {
-        case FETCH_DATA:
+        case 'FETCH_DATA':
             console.log("the data is ",action.devices);
-            return { ...state, devices: action.devices,isDashboard:true }
-        case ADD_DEVICE:
+            return { ...state, devices: action.devices };
+        case 'ADD_DEVICE':
             console.log("the action is 5",action);
-            return { ...state, devices: action.devices }
+            return { ...state, devices: action.devices,devicesList:action.devicesList }
 
-        case ADD_DEVICE_DONE:
-            return { ...state, addDevice: action.addDevice }
+        case 'ADD_DEVICE_STATUS':
+            console.log("the action is 5",action);
 
-            case UPDATE_DEVICE:
-                return { ...state, devices: action.devices?action.devices:[] }
+            return { ...state,   addDeviceStatus: action.addDeviceStatus}
 
-            case UPDATE_DEVICE_DONE:
-                return { ...state, updateDevice: action.updateDevice }
+            case 'UPDATE_DEVICE':
+                return { ...state, devices: action.devices }
+
+            case 'UPDATE_DEVICE_STATUS':
+                return { ...state, updateDeviceStatus:action.updateDeviceStatus}
 
         case REMOVE_DEVICE:
             return {
                 ...state,
-                devices: action.devices?action.devices:[],
+                devices: action.devices,devicesList:action.devicesList
             }
 
         case REMOVE_DEVICE_DONE:
             return {
                 ...state,
-                removeDevice: action.removeDevice
+                removeDevice: action.removeDevice,
+                popUpMsg:action.popUpMsg
             }
 
-        case DEVICES_AVAILABLE:
+        case 'DEVICES_AVAILABLE':
             return { ...state, devicesList: action.devicesList }
 
         case FETCH_MORE_DATA:

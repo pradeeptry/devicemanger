@@ -57,8 +57,10 @@ const CustomModal = ({ item, theme }) => {
       <Text variant="labelSmall">{os}</Text>
       </View>
       </View>
-      <View style={{height:140,width:140}}>
-        <Image src={{uri:undefined}}/>
+      <View style={{justifyContent:'center',alignItems:'center'}}>
+      <View style={{height:80,width:80}}>
+        <Image source={{ uri: `${qrImage}` }} resizeMode={'cover'} style={{height:'100%',width:'100%'}} />
+      </View>
       </View>
       </ScrollView>
   )

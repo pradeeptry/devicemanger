@@ -17,9 +17,9 @@ const ListElement = ({ item, onPressListElement,
       style={styles.surfaceContainer}
     >
       <Surface style={styles.surface}>
-        <Avatar.Image style={styles.avatar} size={28} source={{ uri: qrImage && undefined }} />
+        <Avatar.Image style={styles.avatar}  size={32} source={{ uri: `${qrImage}` }} />
         <View style={styles.infoContainer}>
-          <View style={{flex:0.7,flexDirection:'column'}}>
+          <View style={{flex:0.6,flexDirection:'column'}}>
           <View style={styles.sectionContainer}>
             <Title
               numberOfLines={1}
@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
       flexDirection:'row',
     },
     surfaceContainer: {
+      flex:1,
       width: '100%',
     },
     surface: {

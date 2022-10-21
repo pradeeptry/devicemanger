@@ -175,10 +175,16 @@ console.log("the data is flagForPopUp",dialogData)
    {dialogData?
         <Portal>
           <Dialog visible={isModalVisible2} onDismiss={()=>{setModalVisibility2(false)}}>
+            {dialogData && dialogData.a?<>
             <Dialog.Title>{dialogData.a}</Dialog.Title>
             <Dialog.Content>
               <Paragraph>{dialogData.q}</Paragraph>
             </Dialog.Content>
+            </>:<><Dialog.Title>{'Success!'}</Dialog.Title>
+            <Dialog.Content>
+              <Paragraph>{dialogData}</Paragraph>
+            </Dialog.Content>
+            </>}
             <Dialog.Actions>
               <Button onPress={()=>{setModalVisibility2(false)}}>Done</Button>
             </Dialog.Actions>

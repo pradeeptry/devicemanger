@@ -9,8 +9,11 @@ const SettingsScreen=(props)=>{
   // const { colors } = theme;
   // const {colors} = this.props.theme;
   return (
-    <View>
+    <View style={{justifyContent:'flex-start',alignItems:'center'}}>
+      <View style={{flexDirection:'row'}}>
      <DeviceExport />
+
+      </View>
     </View>
   )
 

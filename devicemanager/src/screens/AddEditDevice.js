@@ -1,11 +1,11 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState,useRef } from 'react';
 import {
     ScrollView, StyleSheet, View,
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
 import cuid from 'cuid';
-
+import QRCode from 'react-native-qrcode-svg';
 import { useTheme, Text, HelperText } from 'react-native-paper';
 // import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { connect, useDispatch, useSelector } from 'react-redux';
@@ -55,16 +55,11 @@ function AddEditDevice(props) {
     )
     // using same screen for add edit 
     const [isEdit, setIsEdit] = useState(props?.route?.params?.singleDevice ? true : false);
+    const [error,setError] = useState(false);
+    const [qrCreated,setQrCreated]=useState(false);
     // checking for direct submission without change
     const [isClicked, setIsClicked] = useState(false);
-    // for showing errors
-    const [errors, setError] = useState(
-        {
-            name: false,
-            os: false,
-            deviceOwner: false,
-            modal: false
-        });
+    const [disabled,setDisabled] = useState(false);
     // for showing focus & errors if anything changed
     const [focus, setFocus] = useState(
         {
@@ -73,32 +68,54 @@ function AddEditDevice(props) {
             deviceOwner: false,
             modal: false
         });
+        const [qrvalue, setQrvalue] = useState('');
+        const showErrorMsg=(text)=>{
+            setError(text);
+        }
+        // const [qrImageGenrated,setQrImage]=useState(false);
+        let myQRCode = useRef();
 
     validateInputs = async () => {
-        setIsClicked(true);
-        const { name, os, deviceOwner, modal, qrImage, id } = deviceData;
-        if (name && os && deviceOwner && modal) {
-            if (isEdit) {
-                // dispatch(editDevice)
-                let oldData = [...oldDevices];
-                let updatedDeviceIndex = oldData.indexOf(id);
-                const device = { id: id, name, os, deviceOwner, modal, qrImage: 'sdfsds' };
 
-                let removedData = oldData.splice(updatedDeviceIndex, 1, device);
-                console.log("the old updated data is ", oldData);
-                dispatch(updateDeviceData(oldData));
-                props.navigation.goBack();
+        let genrateQrImage=false;
+        await myQRCode.toDataURL((dataURL) => {
+            console.log('qr------',dataURL);
+            let shareImageBase64 = {
+              url: `data:image/png;base64,${dataURL}`,
+            };
+            genrateQrImage = `${shareImageBase64.url}`;
+            setQrCreated(`${shareImageBase64.url}`);
+          }).catch(err=>{
+            console.log('some error occured in qr code genration',err);
+            showErrorMsg('Qr code genration failed');
+            return;
+          });
+       
+    }
+    React.useEffect(()=>{
+    if(qrCreated){
+        addUpdateDevice(qrCreated);
+    }
+    },[qrCreated])
 
-            } else {
-                const device = { id: cuid(), name, os, deviceOwner, modal, qrImage: 'sdfsds' };
-                let oldData = [...oldDevices]; // main device data of redux
-                oldData.push(device)
-                dispatch(addDevice(oldData));
-                props.navigation.goBack();
+ const addUpdateDevice=(qrImage)=>{
+    const { name, os, deviceOwner, modal, id } = deviceData;
 
-            }
+        if (isEdit) {
+            // dispatch(editDevice)
+            let oldData = [...oldDevices];
+            let updatedDeviceIndex = oldData.indexOf(id);
+            const device = { id: id, name, os, deviceOwner, modal, qrImage: qrImage };
+            let removedData = oldData.splice(updatedDeviceIndex, 1, device);
+            console.log("the old updated data is ", oldData);
+            dispatch(updateDeviceData(oldData));
+            props.navigation.goBack();
         } else {
-            // setError('Please enter details');
+            const device = { id: id, name, os, deviceOwner, modal, qrImage:qrImage };
+            let oldData =oldDevices&& oldDevices.length? [...oldDevices]:[]; // main device data of redux
+            oldData.push(device)
+            dispatch(addDevice(oldData));
+            props.navigation.goBack();
         }
     }
 
@@ -151,6 +168,7 @@ function AddEditDevice(props) {
                         <FormInput
                             labelName='Device Name'
                             value={name}
+                            disabled={disabled}
                             onFocus={() => updateFocus('name', true)}
                             onBlur={() => updateFocus('name', false)}
                             onChangeText={text => {
@@ -173,6 +191,7 @@ function AddEditDevice(props) {
                         <FormInput
                             labelName='OS'
                             value={os}
+                            disabled={disabled}
                             onFocus={() => updateFocus('os', true)}
                             onBlur={() => updateFocus('os', false)}
                             onChangeText={text => {
@@ -195,6 +214,7 @@ function AddEditDevice(props) {
                         <FormInput
                             labelName='Device Owner'
                             value={deviceOwner}
+                            disabled={disabled}
                             onChangeText={text => {
                                 updateFormData('deviceOwner', text)
                             }}
@@ -217,6 +237,7 @@ function AddEditDevice(props) {
                         <FormInput
                             labelName='Device Modal'
                             value={modal}
+                            disabled={disabled}
                             onChangeText={text => {
                                 updateFormData('modal', text)
                             }}
@@ -233,8 +254,53 @@ function AddEditDevice(props) {
                             </HelperText>
                             : null}
                     </View>
+                    {isEdit?
+                    <View style={{justifyContent:'center',alignItems:'center',marginTop:20}}>
+                 <QRCode
+                 value={qrvalue ? qrvalue : 'NA'}
+                 size={140}
+                 color="black"
+                 backgroundColor="white"
+                 logo={{
+                   url:`${qrImage}`
+                 }}
+                 logoSize={20}
+                 logoMargin={2}
+                 logoBorderRadius={10}
+                 logoBackgroundColor="yellow"
+               /></View>:isClicked ?
+               <View style={{justifyContent:'center',alignItems:'center',marginTop:20}}>
+
+                <QRCode
+          getRef={(ref) => (myQRCode = ref)}
+          value={qrvalue ? qrvalue : 'NA'}
+          size={140}
+          color="black"
+          backgroundColor="white"
+          logoSize={30}
+          logoMargin={2}
+          logoBorderRadius={15}
+          logoBackgroundColor="yellow"
+        />
+        </View>:null}
+        {error?
+         <HelperText type="error" visible={true}>
+         {error}
+     </HelperText>
+        :null}
                 </TextInputAvoidingView>
-                <CustomButton title={isEdit ? 'Update Device' : 'Add Device'} onPress={() => { validateInputs() }} style={{ position: 'absolute', bottom: 80, alignSelf: 'center' }} />
+                
+                <CustomButton title={isEdit ? 'Update Device' : 'Add Device'} disabled={disabled} onPress={() => { 
+        setIsClicked(true);
+        if( !_isInputValid(name) && !_isInputValid(os) && !_isInputValid(modal) && !_isInputNameOnlyValid(deviceOwner)){
+            setDisabled(true)
+            let id = cuid();
+            setDeviceData(deviceData=>({...deviceData,id:id}));
+         setQrvalue({name,os,modal,deviceOwner,id});
+
+            validateInputs(id);
+        }
+                     }} style={{ position: 'absolute', bottom: 80, alignSelf: 'center' }} />
             </View>
         </>
     );

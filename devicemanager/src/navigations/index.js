@@ -7,6 +7,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import MenuIcon from 'react-native-vector-icons/Feather';
 import { Provider as PaperProvider, MD3DarkTheme, MD3LightTheme,useTheme } from 'react-native-paper';
 import DrawerItems from '../components/DrawerContainer';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -38,9 +39,11 @@ const HomeStack = (props) => {
   //   size={20}
   //   onPress={() =>{ props.navigation.openDrawer()}}
   // />
-  <TouchableOpacity onPress={() => {props.navigation.openDrawer()}}>
-  <Image style={[styles.iconStyle,{color:colors.text}]} source={AppIcon.images.menu} />
+  <TouchableOpacity onPress={() => {props.navigation.openDrawer()}} style={{paddingHorizontal:4}}>
+  <MenuIcon name={'menu'}   color={colors.surface}
+            size={30}   /> 
 </TouchableOpacity>
+
           ),
           headerLeftContainerStyle: {paddingLeft: 10},
           headerTintColor: colors.text,
